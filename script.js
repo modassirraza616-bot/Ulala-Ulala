@@ -128,7 +128,7 @@ document.getElementById('lang').addEventListener('change', e => {
 });
 
 // const map = L.map('map', { zoomControl: false }).setView([28.61, 77.30], 11); // sample coords (Lucknow region)
-const map = L.map('map'); // अभी setView मत करो
+const map = L.map('map'); 
 
 // Default Delhi coordinates
 const delhiLat = 28.6139;
@@ -194,7 +194,7 @@ const customIcon = L.icon({
   popupAnchor: [0, -38]
 });
 
-//Icon of shelters
+//Remove Icon of shelters
 
 const shelterZoomThreshold = 10;
 
@@ -231,7 +231,7 @@ map.on("zoomend", () => {
 
 
 
-// नक्शे पर क्लिक करने से weather दिखाओ
+// click for weathr
 map.on('click', async function (e) {
   const lat = e.latlng.lat;
   const lon = e.latlng.lng;
@@ -798,3 +798,4 @@ document.getElementById('volunteerQuickAction').addEventListener('click', () => 
     alert('❌ Only registered volunteers can access this.');
   }
 });
+
