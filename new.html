@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">S</div>
+            <div class="title">
+                <h1>SACHETNA</h1>
+                <p>Real-time Flood Management</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <select id="lang" class="lang-select" title="Language">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+            </select>
+            <button id="simulateRain" class="btn">Simulate Rain</button>
+            <button id="openTwin" class="btn">Digital Twin</button>
+            <button id="registerVolunteer" class="btn" style="
+    background: linear-gradient(45deg, #1e9ed9, #684ee9);
+    color: #ffffff;
+">Register</button>
+        </div>
+
+    </header>
+    <div id="topBanner">
+        Stay alert, Stay safe
+    </div>
+    <main class="layout">
+        <!-- LEFT: Alerts + Controls -->
+        <div class="pane">
+            <h3 id="leftTitle">Alerts & Live Feed</h3>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <div style="flex:1">
+                    <div class="small" id="predictionShort">AI Prediction: <strong id="predVal">—</strong></div>
+                </div>
+                <div>
+                    <div class="small">Lead time: <strong id="leadTime">—</strong></div>
+                </div>
+            </div>
+
+            <div class="alerts" id="alertsList">
+                <!-- alert cards injected here -->
+            </div>
+
+            <hr style="opacity:0.03;margin:12px 0">
+            <h3 id="liveSensors">Live Sensors (Simulated)</h3>
+            <div class="list" id="sensorList" style="max-height:220px"></div>
+
+            <div style="margin-top:10px;display:flex;gap:8px">
+                <button id="clearAlerts" class="btn">Clear Alerts</button>
+                <button id="simulateSensorSpike" class="btn">Spike Sensors</button>
+            </div>
+        </div>
+
+        <!-- CENTER: Map -->
+        <div class="map-wrap pane" id="mapWrap">
+            <div id="map" style="width:100%;height:100%"></div>
+        </div>
+
+        <!-- RIGHT: SOS, Uploads, Shelters, Volunteers -->
+        <div class="right-section">
+            <div class="card" >
+                <div class="flex-between">
+                    <h3 id="rightTitle">SOS & Emergency</h3>
+                    <div class="mini">Offline SMS fallback included</div>
+                </div>
+                <p class="small">One-tap SOS sends location to nearest responder. If offline, your device will offer an
+                    SMS emergency with coordinates.</p>
+
+                <!-- Search Box -->
+                <div style="margin:10px;">
+                    <input type="text" id="placeInput" placeholder="Search place...">
+                    <button onclick="searchPlace()"
+                        style="padding:6px 10px; border:none; border-radius:4px; background:#0077cc; color:white;">Search</button>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-top:8px">
+                    <button id="sosBtn" class="sos-btn">I NEED HELP — SOS</button>
+                    <button id="fakeSos" class="btn">Simulate SOS</button>
+                    <button id="volunteerQuickAction" class="btn">Volunteer Quick Actions</button>
+
+                </div>
+
+                <!-- Forecast Info Section -->
+                <div id="forecast-info"
+                    style="margin:15px; padding:10px; border:1px solid #ccc; border-radius:8px; background:#f9f9f9; color: #021320;">
+                    <h3>Forecast Information</h3>
+                    <p>Click anywhere on the map to see weather forecast here.</p>
+                </div>
+
+
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <div style="flex:1">
+                        <label class="small">Share Location Permission:</label>
+                        <div id="locStatus" class="mini">Unknown</div>
+                    </div>
+                    <div style="width:220px;text-align:right">
+                        <div class="small">Multi-language Alerts</div>
+                        <select id="alertLang" class="lang-select">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <div class="card" style="flex:0 0 100%;">
+                <div class="flex-between">
+                    <h3 id="uploadTitle">Crowd Reports</h3>
+                    <div class="mini">Upload photo/video of water</div>
+                </div>
+                <div class="upload-area" id="uploader">
+                    <input type="file" id="fileInput" accept="image/*,video/*" style="display:none" />
+                    <div style="padding:8px, ">
+                        <button id="pickFile" class="btn">Pick Photo / Video</button>
+                        <input id="crowdinput" type="text" placeholder="Enter Report">
+                        <button id="sendReport" class="btn primary" style="margin-left:8px">Send Report</button>
+                    </div>
+                    <div id="filePreview" class="mini" style="margin-top:8px;color:var(--muted)">No file chosen</div>
+                </div>
+                <div style="margin-top:8px">
+                    <h4 class="mini">Recent Verified Reports</h4>
+                    <div id="reportList" class="list"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card" style="flex:0 0 100%;">
+                <div class="flex-between">
+                    <h3 id="shelterTitle">Shelters & Rescue</h3>
+                    <div class="mini">Nearest shelters and routes</div>
+                </div>
+                <div id="shelterList" class="list" style="max-height:250px;margin-top:8px"></div>
+                <div style="margin-top:8px;display:flex;gap:8px">
+                    <button id="showRoutes" class="btn">Show Evacuation Routes</button>
+                    <button id="nearbyShelters" class="btn">Find Nearest Shelter</button>
+                </div>
+            </div>
+    </main>
+    <div id="twinModal" class="modal">
+        <div class="modal-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <h2 id="twinTitle">Digital Twin — Flood Simulation</h2>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <div class="mini">Simulated 2D inundation + 3D wave visualization</div>
+                    <button id="closeTwin" class="close-x">Close</button>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:8px;flex:1;min-height:0;">
+                <div style="flex:2;border-radius:10px;overflow:hidden;background:#021320;padding:6px">
+                    <div id="twinCanvas"
+                        style="width:100%;height:100%;min-height:480px;background:#021320;border-radius:8px"></div>
+                </div>
+
+                <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+                    <div class="card">
+                        <h4 class="mini">Simulation Controls</h4>
+                        <label class="mini">Rain Intensity</label>
+                        <input id="rainIntensity" type="range" min="0" max="100" value="20" />
+                        <label class="mini">Upstream Release (m³/s)</label>
+                        <input id="upstreamRelease" type="range" min="0" max="1000" value="80" />
+                        <button id="runSim" class="btn primary" style="margin-top:8px">Run Simulation</button>
+                        <div class="mini" style="margin-top:8px">Simulation shows predicted spread and depth heatmap
+                            (simulated physics & AI-fused estimator).</div>
+                    </div>
+
+                    <div class="card">
+                        <h4 class="mini">Legend</h4>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <div style="width:18px;height:12px;background:#0ea5a5;border-radius:4px"></div>
+                            <div class="mini">Low</div>
+                            <div style="width:18px;height:12px;background:#f59e0b;border-radius:4px;margin-left:8px">
+                            </div>
+                            <div class="mini">Medium</div>
+                            <div
+                                style="width:18px;height:12px;background:var(--danger);border-radius:4px;margin-left:8px">
+                            </div>
+                            <div class="mini">High</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4 class="mini">Export</h4>
+                        <button id="exportSim" class="btn">Export Report (PDF)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
